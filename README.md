@@ -26,5 +26,5 @@ GITHUB_PAT=<GITHUB_PAT> TRIGGER_AUTH_TOKEN=<TRIGGER_AUTH_TOKEN> uv run granian -
 ## Calling
 
 ```sh
-curl -XPOST -H "Authorization: Bearer <TRIGGER_AUTH_TOKEN>" https://gh-dispatch-proxy-mc.fly.dev/trigger/<github owner>/<github repo>/<workflow file name>
+curl -XPOST -H "Authorization: Bearer <TRIGGER_AUTH_TOKEN>" http://localhost/trigger/<github owner>/<github repo>/<workflow file name>
 ```
