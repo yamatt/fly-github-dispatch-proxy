@@ -1,0 +1,20 @@
+[project]
+name = "fly-github-workflow-trigger"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.141.1",
+    "granian>=2.8.2",
+    "httpx>=0.28.1",
+    "structlog>=26.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "bandit>=1.9.4",
+    "black>=26.5.1",
+    "isort>=9.0.1",
+    "ruff>=0.16.5",
+]
