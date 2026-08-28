@@ -35,7 +35,7 @@ async def trigger_workflow(
 ):
     if not authorization or authorization != f"Bearer {TRIGGER_AUTH_TOKEN}":
         log.error(
-            "Invalid Authorization header",
+            "INVALID AUTHORIZATION HEADER",
             owner=owner,
             repo=repo,
             workflow_file=workflow_file,
@@ -44,6 +44,7 @@ async def trigger_workflow(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Authorization header",
         )
+    log.info("AUTH SUCCESS")
 
     github_url = (
         f"https://api.github.com/repos/{owner}/{repo}"
@@ -58,20 +59,31 @@ async def trigger_workflow(
     }
 
     async with httpx.AsyncClient() as client:
-        gh_response = await client.post(github_url, headers=headers, json={"ref": ref})
         log.info(
-            "GitHub API response",
+            "SENDING GITHUB DISPATCH REQUEST",
+            url=github_url,
+            ref=ref,
+        )
+        gh_response = await client.post(github_url, headers=headers, json={"ref": ref})
+
+    if gh_response.status_code == 204:
+        log.info(
+            "GITHUB RESPONSE",
             status_code=gh_response.status_code,
             response_text=gh_response.text,
         )
-
-    if gh_response.status_code == 204:
         return {
             "status": "success",
             "repository": f"{owner}/{repo}",
             "workflow": workflow_file,
             "ref": ref,
         }
+
+    log.error(
+        "GITHUB ERROR",
+        status_code=gh_response.status_code,
+        response_text=gh_response.text,
+    )
 
     raise HTTPException(
         status_code=gh_response.status_code,
