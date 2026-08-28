@@ -9,8 +9,7 @@ on:
       - "Dockerfile"
       - "fly.toml"
       - ".github/workflows/fly-deploy.yml"
-      - "scripts/**"
-      - "services/**"
+      - "*.py"
   workflow_run:
     workflows:
       - Auto-merge
