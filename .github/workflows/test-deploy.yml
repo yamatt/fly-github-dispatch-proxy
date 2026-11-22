@@ -75,14 +75,19 @@ jobs:
       - name: Test build Dockerfile
         run: docker build --pull --no-cache --progress=plain --tag test-run .
       - name: Test run Dockerfile
+        id: docker-image-serve
+        background: true
         run: |
-          docker run -d --name test-run -p 8080:8080 test-run
-          docker logs test-run
+          docker run --name test-run \
+            -p 8080:8080 \
+            -e TRIGGER_AUTH_TOKEN=test-token-value \
+            -e GITHUB_PAT=test-github-pat
+            test-run
       - name: Check app is running
-        continue-on-error: true # no idea why this fails. It works fine locally
         run: |
-          sleep 5
-          curl -s http://localhost:8080/ | grep -q "Found"
+          curl -s http://0.0.0.0:8080/ | grep -q "Found"
+      - name: Stop Ollama
+        cancel: docker-image-serve
 
   deploy:
     name: Deploy app
