@@ -5,7 +5,6 @@ os.environ.setdefault("TRIGGER_AUTH_TOKEN", "test-trigger-token")
 os.environ.setdefault("GITHUB_PAT", "test-github-pat")
 
 import httpx
-import pytest
 import respx
 from fastapi.testclient import TestClient
 
