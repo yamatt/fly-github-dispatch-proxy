@@ -8,7 +8,7 @@ on:
     paths:
       - "Dockerfile"
       - "fly.toml"
-      - ".github/workflows/fly-deploy.yml"
+      - ".github/workflows/test-deploy.yml"
       - "*.py"
   workflow_run:
     workflows:
