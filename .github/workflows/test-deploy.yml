@@ -18,7 +18,7 @@ on:
 jobs:
   fly-config-validate:
     name: Validate Fly.io config
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: superfly/flyctl-actions/setup-flyctl@master
@@ -28,7 +28,7 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
   python-lint:
     name: Run Python linter
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v7
       - name: Install uv
@@ -44,14 +44,14 @@ jobs:
           uv run ruff check .
   dockerfile-lint:
     name: Run Hadolint on Dockerfile
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Check Docker files with Hadolint
         uses: hadolint/hadolint-action@v3.5.0
         with:
           dockerfile: Dockerfile
-  test-python:
+  python-test:
     name: Test Python code
     runs-on: ubuntu-slim
     steps:
@@ -86,10 +86,11 @@ jobs:
 
   deploy:
     name: Deploy app
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     needs:
       - fly-config-validate
       - python-lint
+      - python-test
       - dockerfile-lint
       - test-build-run
     concurrency: fly-deploy-group # optional: ensure only one action runs at a time
