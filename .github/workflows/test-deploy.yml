@@ -81,12 +81,12 @@ jobs:
           docker run --name test-run \
             -p 8080:8080 \
             -e TRIGGER_AUTH_TOKEN=test-token-value \
-            -e GITHUB_PAT=test-github-pat
+            -e GITHUB_PAT=test-github-pat \
             test-run
       - name: Check app is running
         run: |
           curl -s http://0.0.0.0:8080/ | grep -q "Found"
-      - name: Stop Ollama
+      - name: Stop Docker container
         cancel: docker-image-serve
 
   deploy:
