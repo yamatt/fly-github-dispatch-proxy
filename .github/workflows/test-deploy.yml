@@ -85,9 +85,7 @@ jobs:
             test-run
       - name: Check app is running
         run: |
-          sleep 1
-          curl http://0.0.0.0:8080/
-          curl -s http://0.0.0.0:8080/ | grep -q "Found"
+          curl -f -S -s --retry 15 --retry-delay 2 --retry-all-errors http://localhost:8080/ | grep -q "Found"
       - name: Stop Docker container
         cancel: docker-image-serve
 
