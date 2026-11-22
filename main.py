@@ -1,7 +1,8 @@
 import os
+from typing import Any
 
 import httpx
-from fastapi import FastAPI, Header, HTTPException, status
+from fastapi import FastAPI, Header, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from logger import log
@@ -21,18 +22,22 @@ class DispatchResponse(BaseModel):
         ..., example="daily-build.yml", description="Triggered workflow file"
     )
     ref: str = Field(..., example="main", description="Git branch or reference target")
+    inputs: dict[str, str] = Field(
+        default_factory=dict, description="Workflow dispatch inputs"
+    )
 
 
 @app.post(
     "/trigger/{owner}/{repo}/{workflow_file}", status_code=status.HTTP_201_CREATED
 )
 async def trigger_workflow(
+    request: Request,
     owner: str,
     repo: str,
     workflow_file: str,
     ref: str = "main",
     authorization: str = Header(None),
-):
+) -> DispatchResponse:
     if not authorization or authorization != f"Bearer {TRIGGER_AUTH_TOKEN}":
         log.error(
             "INVALID AUTHORIZATION HEADER",
@@ -51,6 +56,14 @@ async def trigger_workflow(
         f"/actions/workflows/{workflow_file}/dispatches"
     )
 
+    workflow_inputs = {
+        key: value for key, value in request.query_params.items() if key != "ref"
+    }
+
+    payload: dict[str, Any] = {"ref": ref}
+    if workflow_inputs:
+        payload["inputs"] = workflow_inputs
+
     headers = {
         "Authorization": f"Bearer {GITHUB_PAT}",
         "Accept": "application/vnd.github+json",
@@ -64,7 +77,7 @@ async def trigger_workflow(
             url=github_url,
             ref=ref,
         )
-        gh_response = await client.post(github_url, headers=headers, json={"ref": ref})
+        gh_response = await client.post(github_url, headers=headers, json=payload)
 
     if gh_response.status_code == 204:
         log.info(
@@ -72,12 +85,13 @@ async def trigger_workflow(
             status_code=gh_response.status_code,
             response_text=gh_response.text,
         )
-        return {
-            "status": "success",
-            "repository": f"{owner}/{repo}",
-            "workflow": workflow_file,
-            "ref": ref,
-        }
+        return DispatchResponse(
+            status="success",
+            repository=f"{owner}/{repo}",
+            workflow=workflow_file,
+            ref=ref,
+            inputs=workflow_inputs,
+        )
 
     log.error(
         "GITHUB ERROR",
