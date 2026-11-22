@@ -44,7 +44,7 @@ jobs:
           uv run ruff check .
   dockerfile-lint:
     name: Run Hadolint on Dockerfile
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Check Docker files with Hadolint
