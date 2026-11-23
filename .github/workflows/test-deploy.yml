@@ -10,11 +10,11 @@ on:
       - "fly.toml"
       - ".github/workflows/test-deploy.yml"
       - "*.py"
-  workflow_run:
-    workflows:
-      - Auto-merge
-    types:
-      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
   fly-config-validate:
     name: Validate Fly.io config
